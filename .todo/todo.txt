@@ -1,0 +1,3 @@
+2020-01-29 Email all active persons in the database
+2020-01-29 Email filtered active persons in the database
+2020-01-29 Make database location a property
