@@ -5,10 +5,7 @@ import net.avdw.ProfilingModule;
 import net.avdw.Runtime;
 import net.avdw.liquibase.JdbcUrl;
 import net.avdw.mail.cli.MainCli;
-import net.avdw.property.DefaultProperty;
-import net.avdw.property.GlobalProperty;
-import net.avdw.property.LocalProperty;
-import net.avdw.property.PropertyModule;
+import net.avdw.property.*;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
@@ -43,7 +40,7 @@ public final class Main {
 
                 bind(Path.class).annotatedWith(GlobalProperty.class).toInstance(Paths.get(System.getProperty("user.home")).resolve("net.avdw/mail.properties"));
                 bind(Path.class).annotatedWith(LocalProperty.class).toInstance(Paths.get("").resolve("mail.properties"));
-                bind(String.class).annotatedWith(JdbcUrl.class).toInstance("jdbc:sqlite:mail.sqlite");
+
                 install(new PropertyModule());
                 bind(Logging.class).asEagerSingleton();
                 install(new ProfilingModule("net.avdw.mail", ""));
@@ -60,6 +57,13 @@ public final class Main {
                 properties.put(PropertyKey.RELEASE_MODE, "false");
                 properties.put(PropertyKey.DATABASE_PATH, "mail.sqlite");
                 return properties;
+            }
+
+            @Provides
+            @Singleton
+            @JdbcUrl
+            String jdbcUrl(final PropertyResolver propertyResolver) {
+                return String.format("jdbc:sqlite:%s", propertyResolver.resolve(PropertyKey.DATABASE_PATH));
             }
         }
     }
