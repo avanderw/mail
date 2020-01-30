@@ -1,5 +1,7 @@
 package net.avdw.mail.cli;
 
+import com.google.inject.Inject;
+import net.avdw.liquibase.LiquibaseRunner;
 import org.pmw.tinylog.Logger;
 import picocli.CommandLine;
 
@@ -16,11 +18,15 @@ public class MainCli implements Runnable {
     @CommandLine.Parameters(description = "One or more filters to apply")
     private List<String> filters = new ArrayList<>();
 
+    @Inject
+    private LiquibaseRunner liquibaseRunner;
+
     /**
      * Entry point for picocli.
      */
     @Override
     public void run() {
+        liquibaseRunner.update();
         filters.forEach(Logger::debug);
         Desktop desktop;
         if (Desktop.isDesktopSupported()) {

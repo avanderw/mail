@@ -4,12 +4,11 @@ import com.google.inject.*;
 import net.avdw.ProfilingModule;
 import net.avdw.Runtime;
 import net.avdw.liquibase.JdbcUrl;
-import net.avdw.liquibase.LiquibaseRunner;
+import net.avdw.mail.cli.MainCli;
 import net.avdw.property.DefaultProperty;
 import net.avdw.property.GlobalProperty;
 import net.avdw.property.LocalProperty;
 import net.avdw.property.PropertyModule;
-import net.avdw.mail.cli.MainCli;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
@@ -24,9 +23,6 @@ public final class Main {
     }
 
     public static void main(final String[] args) {
-        LiquibaseRunner liquibaseRunner = GuiceFactory.INJECTOR.getInstance(LiquibaseRunner.class);
-        liquibaseRunner.update();
-
         CommandLine commandLine = new CommandLine(MainCli.class, new GuiceFactory());
         commandLine.execute(args);
     }
@@ -62,6 +58,7 @@ public final class Main {
                 Properties properties = new Properties();
                 properties.put(PropertyKey.LOGGING_LEVEL, "INFO");
                 properties.put(PropertyKey.RELEASE_MODE, "false");
+                properties.put(PropertyKey.DATABASE_PATH, "mail.sqlite");
                 return properties;
             }
         }
