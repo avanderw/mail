@@ -20,6 +20,8 @@ subcommands = {ConfigCli.class})
 public class MainCli implements Runnable {
     @CommandLine.Parameters(description = "One or more filters to apply")
     private List<String> filters = new ArrayList<>();
+    @CommandLine.Option(names = "--subject")
+    private String subject = "";
 
     @Inject
     private LiquibaseRunner liquibaseRunner;
@@ -37,7 +39,7 @@ public class MainCli implements Runnable {
         if (filters.isEmpty()) {
             personTableList = personTableQuery.queryAll();
         } else {
-            throw new UnsupportedOperationException();
+            personTableList = personTableQuery.queryRoles(filters);
         }
 
         Desktop desktop;
@@ -45,10 +47,14 @@ public class MainCli implements Runnable {
             desktop = Desktop.getDesktop();
             if (desktop.isSupported(Desktop.Action.MAIL)) {
                 try {
-                    String emails = personTableList.stream().map(PersonTable::getEmail).collect(Collectors.joining(";"));
-                    String mailto = String.format("mailto:%s?subject=Test", emails);
-                    URI mailUri = new URI(mailto);
-                    desktop.mail(mailUri);
+                    if (personTableList.isEmpty()) {
+                        throw new UnsupportedOperationException();
+                    } else {
+                        String emails = personTableList.stream().map(PersonTable::getEmail).collect(Collectors.joining(";"));
+                        String mailto = String.format("mailto:%s?subject=%s", emails, subject);
+                        URI mailUri = new URI(mailto);
+                        desktop.mail(mailUri);
+                    }
                 } catch (IOException | URISyntaxException e) {
                     Logger.error(e.getMessage());
                     Logger.debug(e);
