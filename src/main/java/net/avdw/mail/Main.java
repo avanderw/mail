@@ -3,13 +3,18 @@ package net.avdw.mail;
 import com.google.inject.*;
 import net.avdw.ProfilingModule;
 import net.avdw.Runtime;
+import net.avdw.liquibase.DbConnection;
 import net.avdw.liquibase.JdbcUrl;
 import net.avdw.mail.cli.MainCli;
 import net.avdw.property.*;
+import org.pmw.tinylog.Logger;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
@@ -64,6 +69,19 @@ public final class Main {
             @JdbcUrl
             String jdbcUrl(final PropertyResolver propertyResolver) {
                 return String.format("jdbc:sqlite:%s", propertyResolver.resolve(PropertyKey.DATABASE_PATH));
+            }
+
+            @Provides
+            @Singleton
+            @DbConnection
+            Connection dbConnection(@JdbcUrl final String jdbcUrl) {
+                try {
+                    return DriverManager.getConnection(jdbcUrl);
+                } catch (SQLException e) {
+                    Logger.error(e.getMessage());
+                    Logger.debug(e);
+                    throw new UnsupportedOperationException();
+                }
             }
         }
     }

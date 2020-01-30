@@ -10,27 +10,21 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import org.pmw.tinylog.Logger;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class LiquibaseRunner {
-    private final String jdbcUrl;
+    private final Connection connection;
 
     @Inject
-    LiquibaseRunner(@JdbcUrl final String jdbcUrl) {
-        this.jdbcUrl = jdbcUrl;
+    LiquibaseRunner(@DbConnection final Connection connection) {
+        this.connection = connection;
     }
-
     public void update() {
         Liquibase liquibase = null;
-        Connection connection = null;
-
         try {
-            connection = DriverManager.getConnection(jdbcUrl);
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
             liquibase = new Liquibase("net/avdw/liquibase/changelog.xml", new ClassLoaderResourceAccessor(), database);
             liquibase.update("main");
-        } catch (SQLException | LiquibaseException e) {
+        } catch (LiquibaseException e) {
             Logger.error(e.getMessage());
             Logger.debug(e);
         }
