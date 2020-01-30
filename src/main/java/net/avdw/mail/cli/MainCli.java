@@ -11,6 +11,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,6 +53,8 @@ public class MainCli implements Runnable {
                         throw new UnsupportedOperationException();
                     } else {
                         String emails = personTableList.stream().map(PersonTable::getEmail).collect(Collectors.joining(";"));
+                        subject = URLEncoder.encode(subject, StandardCharsets.UTF_8.toString());
+                        subject = subject.replaceAll("\\+", "%20");
                         String mailto = String.format("mailto:%s?subject=%s", emails, subject);
                         URI mailUri = new URI(mailto);
                         desktop.mail(mailUri);
